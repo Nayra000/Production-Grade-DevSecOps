@@ -1,0 +1,68 @@
+jenkins:
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: admin
+          password: admin123
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+
+  clouds:
+  - kubernetes:
+      name: kubernetes
+      serverUrl: https://103645CA51D13F5C854A1D883BA20E22.gr7.us-east-1.eks.amazonaws.com
+      namespace: jenkins
+      jenkinsUrl: http://13.222.113.14:8080
+      containerCapStr: "10"
+      templates:
+          - name: "jenkins-agent"
+            label: "jenkins-agent"
+            serviceAccount: "jenkins"
+
+            containers:
+
+              - name: jnlp
+                image: jenkins/inbound-agent
+                ttyEnabled: true
+
+              - name: kaniko
+                image: gcr.io/kaniko-project/executor:latest
+                command:
+                  - cat
+                ttyEnabled: true
+
+              - name: trivy
+                image: aquasec/trivy
+                command:
+                  - cat
+                ttyEnabled: true
+
+              - name: owasp
+                image: owasp/dependency-check
+                command:
+                  - cat
+                ttyEnabled: true
+
+
+
+  # unclassified:
+  # sonarGlobalConfiguration:
+  #   installations:
+  #     - name: sonarqube
+  #       serverUrl: http://sonarqube.sonarqube.svc.cluster.local
+  #       credentialsId: sonar-token
+
+  # credentials:
+  #   system:
+  #     domainCredentials:
+  #       - credentials:
+  #         - aws:
+  #             id: aws-credentials
+  #             accessKey: AWS_ACCESS_KEY
+  #             secretKey: AWS_SECRET_KEY
+  
+ 

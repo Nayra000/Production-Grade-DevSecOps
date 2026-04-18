@@ -1,0 +1,34 @@
+- name: Create JCasC directory
+  file:
+    path: /var/lib/jenkins/casc_configs
+    state: directory
+    owner: jenkins
+    group: jenkins
+
+- name: Copy JCasC config
+  template:
+    src: jenkins.yaml.j2
+    dest: /var/lib/jenkins/casc_configs/jenkins.yaml
+    owner: jenkins
+    group: jenkins
+
+- name: Create systemd override directory
+  file:
+    path: /etc/systemd/system/jenkins.service.d
+    state: directory
+
+- name: Set JCasC via systemd override
+  copy:
+    dest: /etc/systemd/system/jenkins.service.d/casc.conf
+    content: |
+      [Service]
+      Environment="CASC_JENKINS_CONFIG=/var/lib/jenkins/casc_configs"
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+
+- name: Restart Jenkins
+  service:
+    name: jenkins
+    state: restarted
