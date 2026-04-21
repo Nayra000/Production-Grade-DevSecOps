@@ -156,20 +156,20 @@ resource "helm_release" "alb_controller" {
 # }
 
 # Metrics Server
-resource "helm_release" "metrics_server" {
-  name       = "metrics-server"
-  repository = "https://kubernetes-sigs.github.io/metrics-server/"
-  chart      = "metrics-server"
-  namespace  = "kube-system"
-  version    = "3.11.0"
+# resource "helm_release" "metrics_server" {
+#   name       = "metrics-server"
+#   repository = "https://kubernetes-sigs.github.io/metrics-server/"
+#   chart      = "metrics-server"
+#   namespace  = "kube-system"
+#   version    = "3.11.0"
 
-  set {
-    name  = "replicas"
-    value = "1"
-  }
+#   set {
+#     name  = "replicas"
+#     value = "1"
+#   }
 
-  depends_on = [var.node_group_ids]
-}
+#   depends_on = [var.node_group_ids]
+# }
 
 # EBS StorageClass
 resource "kubernetes_storage_class" "gp3" {

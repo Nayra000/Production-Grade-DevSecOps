@@ -71,3 +71,9 @@ module "addons" {
   depends_on = [module.eks]
 }
 
+module "sonarqube" {
+  
+  source = "./modules/sonarqube"
+  depends_on = [module.addons]
+  
+}
