@@ -1,0 +1,32 @@
+service:
+  type: ClusterIP
+
+persistence:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 1Gi
+  limits:
+    cpu: 500m
+    memory: 2Gi
+
+postgresql:
+  enabled: true
+
+  auth:
+    username: sonar
+    password: sonar
+    database: sonarqube
+
+  image:
+    registry: docker.io
+    repository: bitnami/postgresql
+    tag: latest
+
+startupProbe:
+  initialDelaySeconds: 90
+  periodSeconds: 15
+  failureThreshold: 30    
+  timeoutSeconds: 10
