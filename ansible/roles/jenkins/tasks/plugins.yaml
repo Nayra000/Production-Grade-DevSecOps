@@ -14,7 +14,7 @@
     url: https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/2.14.0/jenkins-plugin-manager-2.14.0.jar
     dest: /tmp/jenkins-plugin-manager.jar
     mode: '0644'
-    force: false                         # ✅ skip if already downloaded
+    force: false                       
 
 - name: Ensure plugins directory exists
   file:
@@ -50,13 +50,13 @@
   when: >
     not checksum_file.stat.exists or
     current_checksum.stat.checksum != (previous_checksum.content | default('') | b64decode | trim)
-  register: plugins_installed                # ✅ track if install ran
+  register: plugins_installed              
 
 - name: Save plugins checksum
   copy:
     content: "{{ current_checksum.stat.checksum }}"
     dest: /var/lib/jenkins/.plugins_checksum
-  when: plugins_installed is changed         # ✅ cleaner condition
+  when: plugins_installed is changed     
 
 - name: Fix plugins ownership
   file:
@@ -65,10 +65,10 @@
     owner: jenkins
     group: jenkins
     recurse: yes
-  when: plugins_installed is changed         # ✅ only when needed
+  when: plugins_installed is changed         
 
 - name: Restart Jenkins
   service:
     name: jenkins
     state: restarted
-  when: plugins_installed is changed         # ✅ only when needed
+  when: plugins_installed is changed        

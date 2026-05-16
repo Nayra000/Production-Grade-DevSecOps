@@ -30,6 +30,8 @@ module "eks" {
   vpc_id             = module.vpc.vpc_id
   private_subnet_ids = module.vpc.private_subnet_ids
   public_subnet_ids  = module.vpc.public_subnet_ids
+  jenkins_security_group_id = module.ec2.jenkins_security_group_id
+
 
   endpoint_public_access       = var.cluster_endpoint_public_access
   # endpoint_public_access_cidrs = var.cluster_endpoint_public_access_cidrs
@@ -43,7 +45,7 @@ module "eks" {
       groups   = ["system:masters"]
     }  ,
     {
-      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jenkins_ec2_role"
+      rolearn  = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/jenkins-ec2-role"
       username = "jenkins"
       groups   = ["jenkins-group"]
 
@@ -71,9 +73,15 @@ module "addons" {
   depends_on = [module.eks]
 }
 
-module "sonarqube" {
+# module "sonarqube" {
   
-  source = "./modules/sonarqube"
-  depends_on = [module.addons]
+#   source = "./modules/sonarqube"
+#   depends_on = [module.addons]
   
+# }
+
+module "ecr" {
+  source = "./modules/ecr"
+  eks_url = module.eks.cluster_oidc_issuer_url
+  eks_arn = module.eks.oidc_provider_arn
 }

@@ -1,0 +1,71 @@
+# -----------------------------
+# Install required packages
+# -----------------------------
+- name: Install unzip and curl
+  package:
+    name:
+      - unzip
+    state: present
+
+# -----------------------------
+# Install AWS CLI v2
+# -----------------------------
+- name: Download AWS CLI
+  get_url:
+    url: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+    dest: /tmp/awscliv2.zip
+
+- name: Unzip AWS CLI
+  unarchive:
+    src: /tmp/awscliv2.zip
+    dest: /tmp/
+    remote_src: yes
+
+- name: Install AWS CLI
+  command: /tmp/aws/install
+  args:
+    creates: /usr/local/aws-cli/v2/current/bin/aws
+
+# -----------------------------
+# Install kubectl
+# -----------------------------
+- name: Get latest kubectl version
+  shell: curl -L -s https://dl.k8s.io/release/stable.txt
+  register: kubectl_latest
+  changed_when: false
+
+- name: Download kubectl
+  get_url:
+    url: "https://dl.k8s.io/release/{{ kubectl_latest.stdout }}/bin/linux/amd64/kubectl"
+    dest: /usr/local/bin/kubectl
+    mode: '0755'
+# -----------------------------
+# Verify installations
+# -----------------------------
+- name: Check AWS CLI version
+  command: aws --version
+  register: aws_version
+  changed_when: false
+
+- debug:
+    var: aws_version.stdout
+
+- name: Check kubectl version
+  command: kubectl version --client
+  register: kubectl_version_out
+  changed_when: false
+
+- debug:
+    var: kubectl_version_out.stdout
+
+# -----------------------------
+# Update kubeconfig
+# -----------------------------
+- name: Update kubeconfig for EKS
+  command: >
+    aws eks update-kubeconfig
+    --region us-east-1 
+    --name myapp-production
+  environment:
+    AWS_DEFAULT_REGION: us-east-1 
+  changed_when: false

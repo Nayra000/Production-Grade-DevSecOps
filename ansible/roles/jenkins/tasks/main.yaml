@@ -1,3 +1,4 @@
 - include_tasks: install.yaml
 - include_tasks: plugins.yaml
 - include_tasks: config.yaml
+- include_tasks: tools.yaml

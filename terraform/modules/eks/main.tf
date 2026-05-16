@@ -61,6 +61,17 @@ resource "aws_security_group_rule" "nodes_to_cluster" {
   description              = "Allow nodes to reach API server"
 }
 
+resource "aws_security_group_rule" "jenkins_to_cluster" {
+  type                     = "ingress"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  security_group_id        = aws_security_group.cluster.id
+  source_security_group_id = var.jenkins_security_group_id
+  description              = "Allow Jenkins to reach API server"
+  
+}
+
 #################################################
 # EKS Cluster
 #################################################
@@ -191,7 +202,7 @@ resource "aws_launch_template" "node" {
 
   name_prefix = "${var.cluster_name}-${each.key}-lt"
 
-  # ✅ Disk size now lives here
+ 
   block_device_mappings {
     device_name = "/dev/xvda" # Amazon Linux 2; use /dev/nvme0n1 for Bottlerocket
 
@@ -206,7 +217,7 @@ resource "aws_launch_template" "node" {
   metadata_options {
     http_endpoint               = "enabled"
     http_tokens                 = "required"
-    http_put_response_hop_limit = 1
+    http_put_response_hop_limit = 2
   }
 
   monitoring {

@@ -73,3 +73,7 @@ variable "additional_users" {
   }))
   default = []
 }
+
+variable "jenkins_security_group_id" {
+  type = string
+}

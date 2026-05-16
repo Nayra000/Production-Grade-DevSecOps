@@ -7,7 +7,7 @@
 
 - name: Copy JCasC config
   template:
-    src: jenkins.yaml.j2
+    src: templates/jenkins.yaml.j2
     dest: /var/lib/jenkins/casc_configs/jenkins.yaml
     owner: jenkins
     group: jenkins
@@ -27,6 +27,19 @@
 - name: Reload systemd
   systemd:
     daemon_reload: yes
+
+- name: Ensure Jenkins directories are owned by the jenkins user
+  ansible.builtin.file:
+    path: "{{ item }}"
+    owner: jenkins
+    group: jenkins
+    recurse: yes
+    state: directory
+  become: true
+  loop:
+    - /var/lib/jenkins
+    - /var/cache/jenkins
+   # - /var/log/jenkins  
 
 - name: Restart Jenkins
   service:

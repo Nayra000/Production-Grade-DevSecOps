@@ -80,13 +80,12 @@ resource "aws_iam_role" "jenkins_irsa" {
     Statement = [{
       Effect = "Allow"
       Principal = {
-        Federated = aws_iam_openid_connect_provider.eks.arn
+        Federated = var.eks_arn
       }
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
-        StringEquals = {
-          "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub" :
-          "system:serviceaccount:jenkins:jenkins"
+      StringEquals = {
+       ( "${replace(var.eks_url, "https://", "")}:sub" ) = "system:serviceaccount:jenkins:jenkins"
         }
       }
     }]
@@ -98,11 +97,7 @@ resource "aws_iam_role_policy_attachment" "jenkins_ecr_attach" {
   policy_arn = aws_iam_policy.jenkins_ecr.arn
 }
 
-resource "kubernetes_namespace" "jenkins" {
-  metadata {
-    name = "jenkins"
-  }
-}
+
 
 resource "kubernetes_service_account" "jenkins" {
   metadata {

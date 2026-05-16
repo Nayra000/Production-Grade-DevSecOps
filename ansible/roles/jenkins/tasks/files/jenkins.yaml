@@ -14,9 +14,9 @@ jenkins:
   clouds:
   - kubernetes:
       name: kubernetes
-      serverUrl: https://103645CA51D13F5C854A1D883BA20E22.gr7.us-east-1.eks.amazonaws.com
+      serverUrl: https://B8F7C26435E83EBA66E9A8B39711DD8A.gr7.us-east-1.eks.amazonaws.com
       namespace: jenkins
-      jenkinsUrl: http://13.222.113.14:8080
+      jenkinsUrl: http://35.172.209.221:8080
       containerCapStr: "10"
       templates:
           - name: "jenkins-agent"

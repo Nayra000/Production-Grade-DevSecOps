@@ -4,12 +4,6 @@ resource "kubernetes_namespace" "jenkins" {
   }
 }
 
-resource "kubernetes_service_account" "jenkins" {
-  metadata {
-    name      = "jenkins"
-    namespace = kubernetes_namespace.jenkins.metadata[0].name
-  }
-}
 
 resource "kubernetes_role" "jenkins" {
   metadata {

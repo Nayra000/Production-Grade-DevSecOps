@@ -13,15 +13,40 @@ resource "aws_iam_role" "jenkins_ec2_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "jenkins_eks" {
-  role       = aws_iam_role.jenkins_ec2_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+# resource "aws_iam_role_policy_attachment" "jenkins_eks" {
+#   role       = aws_iam_role.jenkins_ec2_role.name
+#   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+# }
+
+
+
+resource "aws_iam_policy" "jenkins_eks_access" {
+  name = "jenkins-eks-access"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Action = [
+        "eks:DescribeCluster",
+        "eks:ListClusters"
+      ]
+      Resource = "*"
+    }]
+  })
 }
+
+resource "aws_iam_role_policy_attachment" "jenkins_eks_access_attach" {
+  role       = aws_iam_role.jenkins_ec2_role.name
+  policy_arn = aws_iam_policy.jenkins_eks_access.arn
+}
+
 
 resource "aws_iam_instance_profile" "jenkins_profile" {
   name = "jenkins-instance-profile"
   role = aws_iam_role.jenkins_ec2_role.name
 }
+
 
 resource "aws_security_group" "jenkins_sg" {
   name        = "jenkins-sg"
@@ -75,7 +100,7 @@ resource "aws_key_pair" "jenkins_key" {
 
 resource "aws_instance" "jenkins" {
   ami                    = data.aws_ami.amazon_linux.id
-  instance_type          = "t3.micro"
+  instance_type          = "t3.small"
   subnet_id              = var.public_subnet_id
   vpc_security_group_ids = [aws_security_group.jenkins_sg.id]
   key_name               = var.key_name
@@ -83,6 +108,13 @@ resource "aws_instance" "jenkins" {
   associate_public_ip_address = true
 
   iam_instance_profile = aws_iam_instance_profile.jenkins_profile.name
+
+  root_block_device {
+  volume_size           = 20
+  volume_type           = "gp3"
+  encrypted             = true
+  delete_on_termination = true
+}
 
   tags = {
     Name = "jenkins-server"

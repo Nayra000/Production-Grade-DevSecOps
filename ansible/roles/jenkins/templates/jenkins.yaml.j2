@@ -15,41 +15,19 @@ jenkins:
   clouds:
     - kubernetes:
         name: "kubernetes"
+        serverUrl:  https://BE27DA60C43484A4C7895736C6B37841.gr7.us-east-1.eks.amazonaws.com
         namespace: "jenkins"
-        jenkinsUrl: "http://13.222.113.14:8080"
+        jenkinsUrl: "http://44.192.96.159:8080"
         containerCapStr: "10"
         templates:
           - name: "jenkins-agent"
             label: "jenkins-agent"
             serviceAccount: "jenkins"
-
             containers:
-
               - name: jnlp
                 image: jenkins/inbound-agent
                 ttyEnabled: true
-
               - name: kaniko
                 image: gcr.io/kaniko-project/executor:latest
-                command:
-                  - cat
+                command: "cat"
                 ttyEnabled: true
-
-              - name: trivy
-                image: aquasec/trivy
-                command:
-                  - cat
-                ttyEnabled: true
-
-              - name: owasp
-                image: owasp/dependency-check
-                command:
-                  - cat
-                ttyEnabled: true
-        
-
-unclassified:
-  sonarGlobalConfiguration:
-    installations:
-      - name: sonarqube
-        serverUrl: http://sonarqube-sonarqube.sonarqube.svc.cluster.local
