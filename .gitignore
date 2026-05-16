@@ -2,3 +2,4 @@ terraform/.terraform/
 terraform/*.lock.hcl
 terraform/terraform.tfvars
 terraform/errored.tfstate
+ansible/inventory
