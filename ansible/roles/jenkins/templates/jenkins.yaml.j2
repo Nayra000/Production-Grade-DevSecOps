@@ -6,18 +6,24 @@ jenkins:
       allowsSignup: false
       users:
         - id: admin
-          password: admin123
+          password: admin
 
   authorizationStrategy:
     loggedInUsersCanDoAnything:
       allowAnonymousRead: false
 
+  remotingSecurity:
+    enabled: true
+
+  slaveAgentPort: 50000
+
   clouds:
     - kubernetes:
         name: "kubernetes"
-        serverUrl:  https://BE27DA60C43484A4C7895736C6B37841.gr7.us-east-1.eks.amazonaws.com
+        serverUrl:  "https://F192341A486165220DB3764F195C9EF8.gr7.us-east-1.eks.amazonaws.com"
         namespace: "jenkins"
-        jenkinsUrl: "http://44.192.96.159:8080"
+        jenkinsUrl: "http://44.203.103.40:8080"
+        jenkinsTunnel: "44.203.103.40:50000"
         containerCapStr: "10"
         templates:
           - name: "jenkins-agent"
@@ -28,6 +34,12 @@ jenkins:
                 image: jenkins/inbound-agent
                 ttyEnabled: true
               - name: kaniko
-                image: gcr.io/kaniko-project/executor:latest
-                command: "cat"
+                image: gcr.io/kaniko-project/executor:debug
+                command: "sleep"
+                args: "infinity"
+                ttyEnabled: true
+              - name: sonar-scanner
+                image: sonarsource/sonar-scanner-cli:latest
+                command: "sleep"
+                args: "infinity"
                 ttyEnabled: true

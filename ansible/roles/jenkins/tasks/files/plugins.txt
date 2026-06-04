@@ -6,5 +6,4 @@ sonar
 dependency-check-jenkins-plugin
 aws-credentials
 credentials-binding
-docker-workflow
 pipeline-stage-view

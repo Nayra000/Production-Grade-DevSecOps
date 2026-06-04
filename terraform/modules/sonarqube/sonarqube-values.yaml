@@ -1,6 +1,27 @@
 service:
   type: ClusterIP
 
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
+    alb.ingress.kubernetes.io/actions.sonarqube: |
+      {"type":"forward","forwardConfig":{"targetGroups":[{"serviceName":"sonarqube-sonarqube","servicePort":"9000","weight":100}]}}
+    alb.ingress.kubernetes.io/conditions.sonarqube: |
+      [{"field":"path-pattern","pathPatternConfig":{"values":["/"]}}]
+  hosts:
+    - name: ""
+      path: /
+      pathType: Prefix
+      backend:
+        service:
+          name: sonarqube
+          port:
+            number: 9000
+
 persistence:
   enabled: false
 

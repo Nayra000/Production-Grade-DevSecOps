@@ -39,6 +39,7 @@
     url: "https://dl.k8s.io/release/{{ kubectl_latest.stdout }}/bin/linux/amd64/kubectl"
     dest: /usr/local/bin/kubectl
     mode: '0755'
+
 # -----------------------------
 # Verify installations
 # -----------------------------
@@ -59,13 +60,34 @@
     var: kubectl_version_out.stdout
 
 # -----------------------------
+# Setup jenkins .kube directory
+# -----------------------------
+- name: Create .kube directory for jenkins
+  file:
+    path: /var/lib/jenkins/.kube
+    state: directory
+    owner: jenkins
+    group: jenkins
+    mode: '0755'
+
+# -----------------------------
 # Update kubeconfig
 # -----------------------------
-- name: Update kubeconfig for EKS
+- name: Update kubeconfig for EKS as jenkins
+  become: true
+  become_user: jenkins
   command: >
     aws eks update-kubeconfig
-    --region us-east-1 
+    --region us-east-1
     --name myapp-production
+    --kubeconfig /var/lib/jenkins/.kube/config
   environment:
-    AWS_DEFAULT_REGION: us-east-1 
-  changed_when: false
+    HOME: /var/lib/jenkins
+
+- name: Ensure kubeconfig is owned by jenkins
+  file:
+    path: /var/lib/jenkins/.kube/config
+    owner: jenkins
+    group: jenkins
+    mode: '0600'
+

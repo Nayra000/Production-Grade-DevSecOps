@@ -1,4 +1,5 @@
 pipeline {
+
     agent {
         kubernetes {
             label 'jenkins-agent'
@@ -6,34 +7,56 @@ pipeline {
     }
 
     environment {
-        AWS_REGION    = 'us-east-1'
-        ECR_REPO      = 'myapp'
-        IMAGE_TAG     = "${BUILD_NUMBER}"
+        AWS_REGION     = 'us-east-1'
+        ECR_REPO       = 'myapp'
+        IMAGE_TAG      = "${BUILD_NUMBER}"
+
         AWS_ACCOUNT_ID = credentials('aws-account-id')
+
         ECR_REGISTRY   = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-        IMAGE_FULL     = "${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}"   
-        }
 
-
+        IMAGE_FULL     = "${ECR_REGISTRY}/${ECR_REPO}:${IMAGE_TAG}"
+    }
 
     stages {
-        
+
         stage('Clone Repo') {
             steps {
-                git branch: 'main', url: 'https://github.com/Nayra000/demo_project.git'
-                sh 'echo "Repository cloned successfully" && ls -la'
+                git branch: 'main',
+                url: 'https://github.com/Nayra000/demo_project.git'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+
+            steps {
+
+                container('sonar-scanner') {
+
+                    withSonarQubeEnv('sonarqube') {
+
+                        sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=myapp \
+                        -Dsonar.sources=.
+                        '''
+                    }
+                }
             }
         }
 
         stage('Build & Push with Kaniko') {
+
             steps {
+
                 container('kaniko') {
+
                     sh """
-                        /kaniko/executor \
-                          --context=dir://${WORKSPACE} \
-                          --dockerfile=${WORKSPACE}/Dockerfile \
-                          --destination=${IMAGE_FULL} \
-                          --cache=true
+                    /kaniko/executor \
+                      --context=dir://${WORKSPACE} \
+                      --dockerfile=${WORKSPACE}/Dockerfile \
+                      --destination=${IMAGE_FULL} \
+                      --cache=true
                     """
                 }
             }
@@ -41,9 +64,11 @@ pipeline {
     }
 
     post {
+
         success {
             echo "Image pushed successfully: ${IMAGE_FULL}"
         }
+
         failure {
             echo "Pipeline failed."
         }
