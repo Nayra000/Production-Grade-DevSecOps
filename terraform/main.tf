@@ -72,15 +72,29 @@ module "addons" {
   depends_on = [module.eks]
 }
 
-module "sonarqube" {
+# module "sonarqube" {
   
-  source = "./modules/sonarqube"
+#   source = "./modules/sonarqube"
+#   depends_on = [module.addons]
+  
+# }
+
+module "argocd" {
+  
+  source = "./modules/argocd"
   depends_on = [module.addons]
   
 }
 
+
 module "ecr" {
   source = "./modules/ecr"
+  eks_url = module.eks.cluster_oidc_issuer_url
+  eks_arn = module.eks.oidc_provider_arn
+}
+
+module "secretmanager" {
+  source = "./modules/secretmanager"
   eks_url = module.eks.cluster_oidc_issuer_url
   eks_arn = module.eks.oidc_provider_arn
 }
