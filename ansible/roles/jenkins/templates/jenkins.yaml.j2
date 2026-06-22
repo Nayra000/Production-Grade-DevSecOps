@@ -20,10 +20,10 @@ jenkins:
   clouds:
     - kubernetes:
         name: "kubernetes"
-        serverUrl:  "https://F192341A486165220DB3764F195C9EF8.gr7.us-east-1.eks.amazonaws.com"
+        serverUrl:  "https://0DE016AAA894B797314096235207E51C.gr7.us-east-1.eks.amazonaws.com"
         namespace: "jenkins"
-        jenkinsUrl: "http://44.203.103.40:8080"
-        jenkinsTunnel: "44.203.103.40:50000"
+        jenkinsUrl: "http://100.58.213.126:8080"
+        jenkinsTunnel: "100.58.213.126:50000"
         containerCapStr: "10"
         templates:
           - name: "jenkins-agent"

@@ -1,3 +1,5 @@
+
+
 resource "aws_secretsmanager_secret" "mongodb" {
   name                    = "mongodb-credentials"
   description             = "MongoDB credentials"

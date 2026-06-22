@@ -1,6 +1,12 @@
 data "aws_caller_identity" "current" {}
 data "aws_availability_zones" "available" {}
 
+
+import {
+  to = module.secretmanager.aws_secretsmanager_secret.mongodb
+  id = "mongodb-credentials"
+}
+
 module "vpc" {
   source = "./modules/vpc"
 
