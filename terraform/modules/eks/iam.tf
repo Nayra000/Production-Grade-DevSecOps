@@ -65,6 +65,13 @@ resource "aws_iam_role_policy_attachment" "node_AmazonSSMManagedInstanceCore" {
   role       = aws_iam_role.node.name
 }
 
+
+
+resource "aws_iam_role_policy_attachment" "node_ecr_readonly" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+  role       = aws_iam_role.node.name
+}
+
 #################################################
 # OIDC Provider (required for IRSA)
 #################################################

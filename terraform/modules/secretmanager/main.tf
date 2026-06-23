@@ -3,7 +3,7 @@
 resource "aws_secretsmanager_secret" "mongodb" {
   name                    = "mongodb-credentials"
   description             = "MongoDB credentials"
-  recovery_window_in_days = 7
+  recovery_window_in_days = 0
 
 }
 
@@ -37,7 +37,7 @@ resource "aws_iam_role" "myapp_secrets_role" {
       Action = "sts:AssumeRoleWithWebIdentity"
       Condition = {
         StringEquals = {
-          "${replace(var.eks_url, "https://", "")}:sub" = "system:serviceaccount:myapp:secretmanager-sa"
+          "${replace(var.eks_url, "https://", "")}:sub" = "system:serviceaccount:external-secrets:external-secrets-sa"
           "${replace(var.eks_url, "https://", "")}:aud" = "sts.amazonaws.com"
         }
       }
