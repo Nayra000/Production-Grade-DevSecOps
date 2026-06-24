@@ -114,3 +114,54 @@ resource "kubernetes_service_account" "jenkins" {
 }
 
 
+resource "aws_iam_policy" "argocd_ecr" {
+  name = "argocd-ecr-policy"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+
+    
+      {
+        Effect = "Allow"
+        Action = [
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "ecr:DescribeImages",
+          "ecr:ListImages"
+        ]
+        Resource = aws_ecr_repository.jenkins_repo.arn
+      }
+
+    ]
+  })
+  
+}
+
+resource "aws_iam_role" "argocd_irsa" {
+  name = "argocd-image-updater-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Effect = "Allow"
+      Principal = {
+        Federated = var.eks_arn
+      }
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Condition = {
+      StringEquals = {
+       ( "${replace(var.eks_url, "https://", "")}:sub" ) = "system:serviceaccount:argocd:argocd-image-updater-sa"
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "argocd_ecr_attach" {
+    role       = aws_iam_role.argocd_irsa.name
+    policy_arn = aws_iam_policy.argocd_ecr.arn
+}
+

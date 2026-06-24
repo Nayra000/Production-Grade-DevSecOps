@@ -7,6 +7,14 @@ resource "aws_secretsmanager_secret" "mongodb" {
 
 }
 
+resource "aws_secretsmanager_secret" "github" {
+  name                    = "github-credentials"
+  description             = "GitHub credentials"
+  recovery_window_in_days = 0
+
+}
+
+
 
 
 resource "aws_iam_policy" "myapp_secrets" {
@@ -19,7 +27,10 @@ resource "aws_iam_policy" "myapp_secrets" {
         Action = [
           "secretsmanager:GetSecretValue"
         ]
-        Resource = aws_secretsmanager_secret.mongodb.arn
+        Resource =  [
+          aws_secretsmanager_secret.mongodb.arn,
+          aws_secretsmanager_secret.github.arn
+        ]
       }
     ]
   })
