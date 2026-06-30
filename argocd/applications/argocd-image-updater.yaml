@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: https://argoproj.github.io/argo-helm
     chart: argocd-image-updater
-    targetRevision: 0.9.6          # <-- deploys Image Updater v0.16.0
+    targetRevision: 0.9.6         
     helm:
       values: |
         config:
@@ -18,7 +18,8 @@ spec:
               prefix: 054892330771.dkr.ecr.us-east-1.amazonaws.com
               default: true
               insecure: false
-              credentials: ext:/scripts/ecr-login.sh  # ECR auth via IRSA
+              credentials: ext:/scripts/ecr-login.sh  
+              credsexpire: 10h
         serviceAccount:
           create: true
           name: argocd-image-updater-sa
