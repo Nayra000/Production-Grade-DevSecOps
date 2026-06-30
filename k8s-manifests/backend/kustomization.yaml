@@ -1,11 +1,9 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - nodejs-deployment.yaml
-  - nodejs-service.yaml
-  - configmap.yaml
-
+- nodejs-deployment.yaml
+- nodejs-service.yaml
+- configmap.yaml
 images:
-  - name: 054892330771.dkr.ecr.us-east-1.amazonaws.com/myapp
-    newTag: 1.0.0   
-
+- name: 054892330771.dkr.ecr.us-east-1.amazonaws.com/myapp
+  newTag: 8.0.0
