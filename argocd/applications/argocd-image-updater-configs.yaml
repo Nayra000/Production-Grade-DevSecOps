@@ -1,22 +1,21 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: backend-app
+  name: argocd-configs
   namespace: argocd
-  annotations:
-     argocd.argoproj.io/sync-wave: "2"
+
 spec:
   project: default
   
   source:
     repoURL: https://github.com/Nayra000/Production-Grade-DevSecOps.git
     targetRevision:  main
-    path: k8s-manifests/backend
+    path: k8s-manifests/argocd-configs
 
   
   destination:
     server: https://kubernetes.default.svc
-    namespace: default
+    namespace: argocd
   
   syncPolicy:
     automated:

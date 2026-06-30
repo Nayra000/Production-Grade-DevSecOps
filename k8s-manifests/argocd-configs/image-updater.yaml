@@ -1,0 +1,20 @@
+apiVersion: argoproj-labs.io/v1alpha1
+kind: ImageUpdater
+metadata:
+  name: backend-app-updater
+  namespace: argocd
+spec:
+  applicationRefs:
+    - name: backend-app
+
+  
+  images:
+    - name: 054892330771.dkr.ecr.us-east-1.amazonaws.com/myapp
+      updateStrategy: semver
+
+  writeBack:
+    method: git
+    git:
+      secretRef:
+        name: github-secret
+      branch: main
