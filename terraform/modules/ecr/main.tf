@@ -121,25 +121,29 @@ resource "aws_iam_policy" "argocd_ecr" {
     Version = "2012-10-17"
     Statement = [
 
-    
       {
         Effect = "Allow"
         Action = [
-          "ecr:GetAuthorizationToken",
+          "ecr:GetAuthorizationToken"
+        ]
+        Resource = "*"
+      },
+
+      {
+        Effect = "Allow"
+        Action = [
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage",
           "ecr:DescribeImages",
+          "ecr:DescribeRepositories",
           "ecr:ListImages"
         ]
         Resource = aws_ecr_repository.jenkins_repo.arn
       }
-
     ]
   })
-  
 }
-
 resource "aws_iam_role" "argocd_irsa" {
   name = "argocd-image-updater-role"
 

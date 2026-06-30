@@ -30,8 +30,7 @@ spec:
           scripts:
             ecr-login.sh: |
               #!/bin/sh
-              aws ecr get-login-password --region us-east-1 \
-                | printf "AWS:%s" "$(cat)"
+              printf "AWS:%s" "$(aws ecr get-login-password --region us-east-1)"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd
