@@ -8,18 +8,29 @@ spec:
   source:
     repoURL: https://argoproj.github.io/argo-helm
     chart: argocd-image-updater
-    targetRevision: 1.2.2 
+    targetRevision: 0.9.6          # <-- deploys Image Updater v0.16.0
     helm:
       values: |
         config:
-          argocd:
-            serverAddress: argocd-server.argocd.svc.cluster.local:443
-            grpcWeb: true
+          registries:
+            - name: ECR
+              api_url: https://054892330771.dkr.ecr.us-east-1.amazonaws.com
+              prefix: 054892330771.dkr.ecr.us-east-1.amazonaws.com
+              default: true
+              insecure: false
+              credentials: ext:/scripts/ecr-login.sh  # ECR auth via IRSA
         serviceAccount:
           create: true
           name: argocd-image-updater-sa
           annotations:
             eks.amazonaws.com/role-arn: arn:aws:iam::054892330771:role/argocd-image-updater-role
+        authScripts:
+          enabled: true
+          scripts:
+            ecr-login.sh: |
+              #!/bin/sh
+              aws ecr get-login-password --region us-east-1 \
+                | printf "AWS:%s" "$(cat)"
   destination:
     server: https://kubernetes.default.svc
     namespace: argocd

@@ -18,12 +18,18 @@ server:
       alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
       alb.ingress.kubernetes.io/healthcheck-path: /healthz
       alb.ingress.kubernetes.io/manage-backend-security-group-rules: "true"
+      alb.ingress.kubernetes.io/group.name: platform-alb   
 
-    hosts:
-      - ""     # empty/no host = match any Host header (fine for ALB without custom domain)
+    hostname: "" 
 
-    paths:
-      - /
+    path: /argocd
+
+    extraHosts: []
+
+    extraPaths: []
+
+    extraRules: []
+
 
     pathType: Prefix
     https: false
@@ -31,3 +37,4 @@ server:
 configs:
   params:
     server.insecure: true
+    server.rootpath: "/argocd"

@@ -4,7 +4,12 @@ metadata:
   name: backend-app
   namespace: argocd
   annotations:
-     argocd.argoproj.io/sync-wave: "2"
+    argocd-image-updater.argoproj.io/image-list: myapp=054892330771.dkr.ecr.us-east-1.amazonaws.com/myapp
+    argocd-image-updater.argoproj.io/myapp.update-strategy: semver
+    argocd-image-updater.argoproj.io/write-back-method: git:secret:argocd/github-secret 
+    argocd-image-updater.argoproj.io/write-back-target: kustomization
+    argocd-image-updater.argoproj.io/git-branch: main
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: default
   
