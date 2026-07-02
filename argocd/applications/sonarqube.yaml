@@ -33,7 +33,8 @@ spec:
               path: /sonarqube
               pathType: Prefix
         env:
-          SONAR_WEB_CONTEXT: /sonarqube
+          - name: SONAR_WEB_CONTEXT
+            value: /sonarqube
         persistence:
           enabled: false
         resources:
