@@ -7,36 +7,37 @@ metadata:
     - resources-finalizer.argocd.argoproj.io
 spec:
   project: default
+
   source:
     repoURL: https://SonarSource.github.io/helm-chart-sonarqube
     chart: sonarqube
     targetRevision: "10.0.0"
+
     helm:
       values: |
         service:
           type: ClusterIP
+
         ingress:
           enabled: true
+          ingressClassName: alb
+
           annotations:
-            kubernetes.io/ingress.class: alb
             alb.ingress.kubernetes.io/scheme: internet-facing
             alb.ingress.kubernetes.io/target-type: ip
             alb.ingress.kubernetes.io/listen-ports: '[{"HTTP":80}]'
             alb.ingress.kubernetes.io/backend-protocol: HTTP
-            alb.ingress.kubernetes.io/healthcheck-protocol: HTTP
-            alb.ingress.kubernetes.io/healthcheck-path: /sonarqube/api/system/status
+            alb.ingress.kubernetes.io/healthcheck-path: /api/system/status
             alb.ingress.kubernetes.io/manage-backend-security-group-rules: "true"
-            alb.ingress.kubernetes.io/group.name: platform-alb
-            alb.ingress.kubernetes.io/group.order: "20"
+
           hosts:
             - name: ""
-              path: /sonarqube
+              path: /
               pathType: Prefix
-        env:
-          - name: SONAR_WEB_CONTEXT
-            value: /sonarqube
+
         persistence:
           enabled: false
+
         resources:
           requests:
             cpu: 200m
@@ -44,27 +45,40 @@ spec:
           limits:
             cpu: 500m
             memory: 2Gi
+
         postgresql:
           enabled: true
+
           image:
             registry: docker.io
             repository: bitnamilegacy/postgresql
             tag: 16.3.0
+
           auth:
             username: sonar
             database: sonarqube
             existingSecret: sonarqube-postgres-credentials
+
         startupProbe:
           initialDelaySeconds: 90
           periodSeconds: 15
-          failureThreshold: 30
           timeoutSeconds: 10
+          failureThreshold: 30
+
+        readinessProbe:
+          initialDelaySeconds: 60
+
+        livenessProbe:
+          initialDelaySeconds: 60
+
   destination:
     server: https://kubernetes.default.svc
     namespace: sonarqube
+
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+
     syncOptions:
       - CreateNamespace=true
