@@ -43,3 +43,13 @@ jenkins:
                 command: "sleep"
                 args: "infinity"
                 ttyEnabled: true
+              - name: check-dependencies
+                image: owasp/dependency-check:latest
+                command: "sleep"
+                args: "infinity"
+                ttyEnabled: true
+              - name: trivy
+                image: aquasec/trivy:latest
+                command: "sleep"
+                args: "infinity"
+                ttyEnabled: true

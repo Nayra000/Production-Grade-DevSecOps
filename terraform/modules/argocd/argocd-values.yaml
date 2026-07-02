@@ -1,6 +1,9 @@
+global:
+  domain: ""
+
 
 httpRoute:
-  enabled: false   # <— disable Gateway API route, you're using ALB ingress instead
+  enabled: false   
 
 server:
   service:

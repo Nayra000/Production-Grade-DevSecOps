@@ -12,6 +12,8 @@ ingress:
       {"type":"forward","forwardConfig":{"targetGroups":[{"serviceName":"sonarqube-sonarqube","servicePort":"9000","weight":100}]}}
     alb.ingress.kubernetes.io/conditions.sonarqube: |
       [{"field":"path-pattern","pathPatternConfig":{"values":["/"]}}]
+    alb.ingress.kubernetes.io/group.name: platform-alb   
+
   hosts:
     - name: ""
       path: /
