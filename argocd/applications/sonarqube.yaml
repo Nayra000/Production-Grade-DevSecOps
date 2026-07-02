@@ -48,8 +48,8 @@ spec:
           enabled: true
           image:
             registry: docker.io
-            repository: bitnami/postgresql
-            tag: "16.3.0"
+            repository: bitnamicharts/postgresql
+            tag: sha256:a8f7e1bb6fe69f43d82634cb5561e78054a5cba92613d056e9278482dc4bc700
           auth:
             username: sonar
             database: sonarqube
