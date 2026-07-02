@@ -51,7 +51,7 @@ postgresql:
   image:
     registry: docker.io
     repository: bitnami/postgresql
-    tag: latest
+    tag: sha256:a8f7e1bb6fe69f43d82634cb5561e78054a5cba92613d056e9278482dc4bc700
 
 startupProbe:
   initialDelaySeconds: 90
