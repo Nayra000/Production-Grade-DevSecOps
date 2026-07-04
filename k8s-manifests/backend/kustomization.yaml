@@ -6,4 +6,4 @@ resources:
 - configmap.yaml
 images:
 - name: 054892330771.dkr.ecr.us-east-1.amazonaws.com/myapp
-  newTag: 2.0.0
+  newTag: 6.0.0
