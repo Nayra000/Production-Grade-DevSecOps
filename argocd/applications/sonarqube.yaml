@@ -29,6 +29,7 @@ spec:
             alb.ingress.kubernetes.io/backend-protocol: HTTP
             alb.ingress.kubernetes.io/healthcheck-path: /api/system/status
             alb.ingress.kubernetes.io/manage-backend-security-group-rules: "true"
+            alb.ingress.kubernetes.io/group.name: platform-alb   
 
           hosts:
             - name: ""
