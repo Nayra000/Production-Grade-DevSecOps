@@ -4,6 +4,7 @@ resources:
 - nodejs-deployment.yaml
 - nodejs-service.yaml
 - configmap.yaml
+- ingress.yaml
 images:
 - name: 054892330771.dkr.ecr.us-east-1.amazonaws.com/myapp
   newTag: 6.0.0
