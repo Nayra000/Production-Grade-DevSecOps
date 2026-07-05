@@ -33,11 +33,13 @@ spec:
 
           hosts:
             - name: ""
-              path: /
+              path: /sonarqube
               pathType: Prefix
 
         persistence:
           enabled: false
+
+        sonarWebContext: /sonarqube
 
         resources:
           requests:
@@ -65,12 +67,17 @@ spec:
           periodSeconds: 15
           timeoutSeconds: 10
           failureThreshold: 30
+          sonarWebContext: /sonarqube
 
         readinessProbe:
           initialDelaySeconds: 60
+          sonarWebContext: /sonarqube
+
 
         livenessProbe:
           initialDelaySeconds: 60
+          sonarWebContext: /sonarqube
+
 
   destination:
     server: https://kubernetes.default.svc
