@@ -39,8 +39,6 @@ spec:
         persistence:
           enabled: false
 
-        sonarWebContext: /sonarqube/
-
         resources:
           requests:
             cpu: 200m
@@ -67,16 +65,13 @@ spec:
           periodSeconds: 15
           timeoutSeconds: 10
           failureThreshold: 30
-          sonarWebContext: /sonarqube/
 
         readinessProbe:
           initialDelaySeconds: 60
-          sonarWebContext: /sonarqube/
 
 
         livenessProbe:
           initialDelaySeconds: 60
-          sonarWebContext: /sonarqube/
 
 
   destination:
