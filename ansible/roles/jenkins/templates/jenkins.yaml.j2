@@ -20,10 +20,10 @@ jenkins:
   clouds:
     - kubernetes:
         name: "kubernetes"
-        serverUrl:  "https://8AB0B8FB6B70D5AC022875A3B15713D3.gr7.us-east-1.eks.amazonaws.com"
+        serverUrl:  "https://C0543B81A0E1BDBE90BD844F517F09AC.gr7.us-east-1.eks.amazonaws.com"
         namespace: "jenkins"
-        jenkinsUrl: "http://32.195.45.191:8080"
-        jenkinsTunnel: "32.195.45.191:50000"
+        jenkinsUrl: "http://44.193.4.10:8080"
+        jenkinsTunnel: "44.193.4.10:50000"
         containerCapStr: "10"
         templates:
           - name: "jenkins-agent"
@@ -40,16 +40,6 @@ jenkins:
                 ttyEnabled: true
               - name: sonar-scanner
                 image: sonarsource/sonar-scanner-cli:latest
-                command: "sleep"
-                args: "infinity"
-                ttyEnabled: true
-              - name: check-dependencies
-                image: owasp/dependency-check:latest
-                command: "sleep"
-                args: "infinity"
-                ttyEnabled: true
-              - name: trivy
-                image: aquasec/trivy:latest
                 command: "sleep"
                 args: "infinity"
                 ttyEnabled: true

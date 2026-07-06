@@ -3,7 +3,6 @@ kubernetes
 workflow-aggregator
 git
 sonar
-dependency-check-jenkins-plugin
 aws-credentials
 credentials-binding
 pipeline-stage-view

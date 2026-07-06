@@ -11,7 +11,7 @@ pipeline {
         ECR_REPO       = 'myapp'
         IMAGE_TAG      = "${BUILD_NUMBER}.0.0"
 
-        AWS_ACCOUNT_ID = credentials('aws-account-id')
+        AWS_ACCOUNT_ID = "054892330771"
 
         ECR_REGISTRY   = "${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
@@ -26,6 +26,7 @@ pipeline {
                 url: 'https://github.com/Nayra000/demo_project.git'
             }
         }
+        
 
         stage('SonarQube Analysis') {
 
@@ -40,6 +41,21 @@ pipeline {
                         -Dsonar.projectKey=myapp \
                         -Dsonar.sources=.
                         '''
+                    }
+                }
+            }
+        }
+
+
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 5, unit: 'MINUTES') {
+                    script {
+                        def qg = waitForQualityGate()
+
+                        if (qg.status != 'OK') {
+                            error "Pipeline aborted due to Quality Gate failure: ${qg.status}"
+                        }
                     }
                 }
             }
@@ -72,5 +88,6 @@ pipeline {
         failure {
             echo "Pipeline failed."
         }
+
     }
 }
