@@ -33,7 +33,7 @@ spec:
 
           hosts:
             - name: ""
-              path: /sonarqube
+              path: /
               pathType: Prefix
 
         persistence:
