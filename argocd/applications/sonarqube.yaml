@@ -39,6 +39,8 @@ spec:
         persistence:
           enabled: false
 
+        sonarWebContext: /sonarqube/
+
         resources:
           requests:
             cpu: 200m
