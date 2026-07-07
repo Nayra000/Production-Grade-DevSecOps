@@ -22,7 +22,7 @@ Application source code lives in a separate repository ([demo_project](https://g
 
 ## Architecture Overview
 
-![Alt text](/images/architecture.png)
+![Alt text](./images/architecture.png)
 
 
 
