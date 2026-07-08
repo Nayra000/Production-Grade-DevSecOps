@@ -6,7 +6,6 @@ Application source code lives in a separate repository ([demo_project](https://g
 
 ## Tech Stack
 
-
 | Layer                    | Technologies                                                  |
 | ------------------------ | ------------------------------------------------------------- |
 | Cloud                    | AWS (VPC, EKS 1.32, EC2, ECR, Secrets Manager, ALB, IAM/IRSA) |
@@ -17,14 +16,9 @@ Application source code lives in a separate repository ([demo_project](https://g
 | Runtime                  | Node.js backend, MongoDB 7.0                                  |
 | Secrets                  | External Secrets Operator, AWS Secrets Manager                |
 
-
-
-
 ## Architecture Overview
 
 ![Alt text](./images/architecture.png)
-
-
 
 ### Infrastructure Schema
 
@@ -100,10 +94,6 @@ flowchart TB
     alb -->|"/backend-apis"| svcApp
 ```
 
-
-
-
-
 ### CI/CD Flow
 
 ```mermaid
@@ -129,10 +119,6 @@ sequenceDiagram
     Argo->>Git: Poll for changes
     Argo->>EKS: Sync backend Deployment
 ```
-
-
-
-
 
 ## Repository Structure
 
@@ -181,7 +167,6 @@ Production-Grade-DevSecOps/
     └── secrets/                # External Secrets + ClusterSecretStore
 ```
 
-
 | Path                               | Purpose                                                            |
 | ---------------------------------- | ------------------------------------------------------------------ |
 | `[terraform/](terraform/)`         | AWS IaC — VPC, EKS, Jenkins EC2, ECR, Secrets Manager, ArgoCD Helm |
@@ -190,12 +175,7 @@ Production-Grade-DevSecOps/
 | `[argocd/](argocd/)`               | GitOps app-of-apps definitions                                     |
 | `[k8s-manifests/](k8s-manifests/)` | Workloads synced by ArgoCD (backend, DB, secrets)                  |
 
-
-
-
 ## Components
-
-
 
 ### Terraform
 
@@ -207,10 +187,7 @@ vpc → ec2 → eks → addons → argocd
               ecr, secretmanager (parallel, depend on EKS OIDC)
 ```
 
-
-
 #### Modules
-
 
 | Module              | Path                                                                   | Description                                                                                                                                                                                                                                                         |
 | ------------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -222,9 +199,6 @@ vpc → ec2 → eks → addons → argocd
 | **ECR**             | `[terraform/modules/ecr/](terraform/modules/ecr/)`                     | `myapp` repository with scan-on-push, AES256 encryption, lifecycle policy (keep last 10 images). IRSA roles for Jenkins (push) and ArgoCD Image Updater (read).                                                                                                     |
 | **Secrets Manager** | `[terraform/modules/secretmanager/](terraform/modules/secretmanager/)` | Secrets for MongoDB credentials (`mongodb-credentials`) and GitHub credentials (`github-credentials`). IRSA role for External Secrets Operator.                                                                                                                     |
 
-
-
-
 #### Remote State
 
 Terraform state is stored remotely in S3 (`[terraform/backend.tf](terraform/backend.tf)`):
@@ -234,12 +208,9 @@ Terraform state is stored remotely in S3 (`[terraform/backend.tf](terraform/back
 - Region: `us-east-1`
 - Encryption: enabled
 
-
-
 #### Required Variables
 
 Create `terraform/terraform.tfvars` (gitignored) with values for:
-
 
 | Variable       | Description                            |
 | -------------- | -------------------------------------- |
@@ -249,19 +220,14 @@ Create `terraform/terraform.tfvars` (gitignored) with values for:
 | `key_name`     | EC2 key pair for SSH access to Jenkins |
 | `node_groups`  | EKS managed node group configurations  |
 
-
 See `[terraform/variables.tf](terraform/variables.tf)` for defaults and full schema.
 
 #### Outputs
-
 
 | Output                   | Description                                |
 | ------------------------ | ------------------------------------------ |
 | `jenkins_public_ip`      | Public IP of the Jenkins EC2 instance      |
 | `myapp_secrets_role_arn` | IAM role ARN for External Secrets Operator |
-
-
-
 
 ### Ansible
 
@@ -276,20 +242,15 @@ The role performs:
 
 The JCasC template configures a Kubernetes cloud in the `jenkins` namespace with a pod template (`jenkins-agent`) containing three containers:
 
-
 | Container       | Image                                  | Purpose                   |
 | --------------- | -------------------------------------- | ------------------------- |
 | `jnlp`          | `jenkins/inbound-agent`                | Jenkins agent connection  |
 | `kaniko`        | `gcr.io/kaniko-project/executor:debug` | Rootless container builds |
 | `sonar-scanner` | `sonarsource/sonar-scanner-cli:latest` | Static code analysis      |
 
-
-
-
 ### Jenkins Pipeline
 
 `[pipeline/jenkinsfile](pipeline/jenkinsfile)` defines the CI pipeline. It runs on Kubernetes agents (label `jenkins-agent`) in the `jenkins` namespace.
-
 
 | Stage                        | Action                                                                              |
 | ---------------------------- | ----------------------------------------------------------------------------------- |
@@ -297,7 +258,6 @@ The JCasC template configures a Kubernetes cloud in the `jenkins` namespace with
 | **SonarQube Analysis**       | Runs `sonar-scanner` in the `sonar-scanner` container against project key `myapp`   |
 | **Quality Gate**             | Waits up to 5 minutes; fails the pipeline if SonarQube gate status is not `OK`      |
 | **Build & Push with Kaniko** | Builds from the cloned repo's `Dockerfile`, pushes to ECR                           |
-
 
 **Image tagging:** `<BUILD_NUMBER>.0.0` (semver-compatible for ArgoCD Image Updater)
 
@@ -315,10 +275,7 @@ ArgoCD is installed by Terraform and bootstrapped with the app-of-apps pattern.
 kubectl apply -f argocd/bootstrap-app.yaml
 ```
 
-
-
 #### Application Inventory
-
 
 | Application            | Source                   | Namespace        | Sync Wave | Notes                                     |
 | ---------------------- | ------------------------ | ---------------- | --------- | ----------------------------------------- |
@@ -328,7 +285,6 @@ kubectl apply -f argocd/bootstrap-app.yaml
 | `external-secrets`     | Helm chart 2.6.0         | external-secrets | —         | IRSA to Secrets Manager                   |
 | `sonarqube`            | Helm chart 10.0.0        | sonarqube        | —         | SAST server with ALB ingress              |
 | `argocd-image-updater` | Helm chart 0.9.6         | argocd           | —         | Semver auto-update from ECR               |
-
 
 All applications use **automated sync** with **prune** and **selfHeal**.
 
@@ -345,10 +301,7 @@ When Jenkins pushes a new semver tag, Image Updater commits the updated image ta
 
 ### Kubernetes Manifests
 
-
-
 #### Backend (`[k8s-manifests/backend/](k8s-manifests/backend/)`)
-
 
 | Resource      | Details                                                                      |
 | ------------- | ---------------------------------------------------------------------------- |
@@ -358,11 +311,9 @@ When Jenkins pushes a new semver tag, Image Updater commits the updated image ta
 | Ingress       | Shared ALB (`platform-alb`), path `/backend-apis`, health check at `/health` |
 | Kustomization | Image tag management for ArgoCD Image Updater write-back                     |
 
-
 Environment variables are sourced from Kubernetes Secrets (via External Secrets) and ConfigMaps — no credentials in Git.
 
 #### Database (`[k8s-manifests/database/](k8s-manifests/database/)`)
-
 
 | Resource         | Details                                |
 | ---------------- | -------------------------------------- |
@@ -370,11 +321,9 @@ Environment variables are sourced from Kubernetes Secrets (via External Secrets)
 | Headless Service | `mongodb-headless` for stable DNS      |
 | StorageClass     | `ebs-gp3` with `Retain` reclaim policy |
 
-
 MongoDB root credentials are injected from `mongodb-root-secret`, synced from AWS Secrets Manager.
 
 #### Secrets (`[k8s-manifests/secrets/](k8s-manifests/secrets/)`)
-
 
 | Resource                 | Purpose                                                                              |
 | ------------------------ | ------------------------------------------------------------------------------------ |
@@ -383,11 +332,7 @@ MongoDB root credentials are injected from `mongodb-root-secret`, synced from AW
 | ExternalSecret (Backend) | Syncs MongoDB connection URI → `nodejs-app-secret`                                   |
 | ExternalSecret (GitHub)  | Syncs `github-credentials` → `argocd/github-secret` for Image Updater Git write-back |
 
-
-
-
 ## DevSecOps Security Features
-
 
 | Practice                 | Implementation                                                                                                                            |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------- |
@@ -400,9 +345,6 @@ MongoDB root credentials are injected from `mongodb-root-secret`, synced from AW
 | **Rootless builds**      | Kaniko builds images without Docker socket access                                                                                         |
 | **RBAC**                 | Scoped Jenkins Kubernetes permissions (pods, exec, logs, secrets get)                                                                     |
 | **Network segmentation** | Security groups for VPC, EKS, and Jenkins EC2                                                                                             |
-
-
-
 
 ### Production Hardening Notes
 
@@ -417,10 +359,7 @@ The following items are commented out or use permissive defaults and should be t
 - ArgoCD `server.insecure: true`
 - Jenkins default admin credentials in JCasC template (change after first login)
 
-
-
 ## IAM / IRSA Roles
-
 
 | Service Account                | Namespace        | IAM Role                    | Permissions                                                        |
 | ------------------------------ | ---------------- | --------------------------- | ------------------------------------------------------------------ |
@@ -430,20 +369,14 @@ The following items are commented out or use permissive defaults and should be t
 | `aws-load-balancer-controller` | kube-system      | ALB Controller role         | ELB, EC2, WAF management                                           |
 | `ebs-csi-controller-sa`        | kube-system      | EBS CSI role                | EBS volume attach/detach/create                                    |
 
-
 **EC2 IAM roles (aws-auth mapped):**
-
 
 | Role               | EKS Access                    |
 | ------------------ | ----------------------------- |
 | `DevOpsRole`       | `system:masters`              |
 | `jenkins-ec2-role` | `jenkins-group` (scoped RBAC) |
 
-
-
-
 ## External Dependencies
-
 
 | Dependency       | Reference                                                    |
 | ---------------- | ------------------------------------------------------------ |
@@ -451,9 +384,6 @@ The following items are commented out or use permissive defaults and should be t
 | GitOps repo      | `https://github.com/Nayra000/Production-Grade-DevSecOps.git` |
 | AWS Account      | `054892330771`                                               |
 | AWS Region       | `us-east-1`                                                  |
-
-
-
 
 ## Prerequisites
 
@@ -467,11 +397,7 @@ The following items are commented out or use permissive defaults and should be t
   - `mongodb-credentials` — MongoDB root username/password
   - `github-credentials` — GitHub token for ArgoCD Image Updater write-back
 
-
-
 ## Deployment Guide
-
-
 
 ### 1. Configure Terraform
 
@@ -498,8 +424,6 @@ node_groups = {
 }
 ```
 
-
-
 ### 2. Provision Infrastructure
 
 ```bash
@@ -524,8 +448,6 @@ aws secretsmanager put-secret-value \
   --secret-id github-credentials \
   --secret-string '{"username":"<github-user>","password":"<github-token>"}'
 ```
-
-
 
 ### 4. Configure Jenkins
 
@@ -560,8 +482,6 @@ Verify all applications sync successfully:
 kubectl get applications -n argocd
 ```
 
-
-
 ### 6. Create Jenkins Pipeline
 
 In the Jenkins UI:
@@ -582,7 +502,52 @@ Configure the SonarQube server (`Manage Jenkins → Configure System → SonarQu
 5. Confirm ArgoCD syncs the backend Deployment
 6. Access the application via the ALB at `http://<alb-dns>/backend-apis`
 
+# Project Evidence
 
+The following screenshots demonstrate the successful deployment and operation of the platform.
+
+## Infrastructure
+
+![](images/9.png)
+![](images/10.png)
+![](images/11.png)
+![](images/12.png)
+![](images/13.png)
+
+---
+
+## Jenkins CI Pipeline and SonarQube
+
+![](images/3.png)
+![](images/4.png)
+![](images/5.png)
+![](images/6.png)
+
+## ArgoCD GitOps
+
+Application synchronized successfully.
+
+![](images/7.png)
+
+Automatic image update detected by ArgoCD Image Updater.
+
+![](images/2.png)
+
+---
+
+## Kubernetes
+
+Running workloads inside Amazon EKS.
+
+![](images/8.png)
+
+---
+
+## Application
+
+Backend application deployed successfully through the shared ALB.
+
+![](images/1.png)
 
 ## License
 
